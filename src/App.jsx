@@ -6,7 +6,7 @@ import { useState, useEffect, useRef } from "react";
 // ║  Dr. Shailesh V. Pangaonkar — Director & Consultant Psychiatrist        ║
 // ╚══════════════════════════════════════════════════════════════════════════╝
 
-const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxFmt0azInyYV-4QzDl58q6DaYX9Wj3BKKbtmHI5G2xJjm69iYQkEndwN1mKI7vI64A8A/exec";
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxYw3DNfteGUApE97zpPScPgVCrHjNXTU-kuwabwQNviLmsaW4gSEd6hqY1FoTJsxu4HQ/exec";
 const TOKEN = "CIBS2026";
 
 // ── URL helpers ────────────────────────────────────────────────────────────
