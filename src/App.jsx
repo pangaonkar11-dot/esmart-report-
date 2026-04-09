@@ -832,10 +832,17 @@ function FamilyReport({ data, plan, childInfo, childID, today, lang, setLang }) 
 //  MAIN APP
 // ══════════════════════════════════════════════════════════════════════════════
 export default function App() {
-  const [screen, setScreen]   = useState("entry"); // entry|loading|generating|report|error
+  // Read mode and language from URL
+  // mode=family  → opens family report directly (for parents)
+  // mode=clinical → opens clinical report directly (for clinicians)
+  // lang=hi or lang=mr → sets family report language automatically
+  const urlMode = getParam("mode") || ""; // "family" | "clinical" | ""
+  const urlLang = getParam("lang") || "en"; // "en" | "hi" | "mr"
+
+  const [screen, setScreen]   = useState("entry");
   const [fileNo, setFileNo]   = useState(getParam("reg") || "");
-  const [tab,    setTab]      = useState("clinical"); // clinical|family
-  const [famLang,setFamLang]  = useState("en");
+  const [tab,    setTab]      = useState(urlMode==="family" ? "family" : "clinical");
+  const [famLang,setFamLang]  = useState(["hi","mr"].includes(urlLang) ? urlLang : "en");
   const [data,   setData]     = useState(null);   // { C, P, V, sessions }
   const [plan,   setPlan]     = useState(null);   // AI plan
   const [childInfo, setChildInfo] = useState({});
@@ -847,6 +854,8 @@ export default function App() {
   // Auto-load if reg param present
   useEffect(() => {
     if (getParam("reg")) fetchData(getParam("reg"));
+    // If mode=family with reg, skip entry screen entirely
+    // If mode=clinical with reg, skip entry screen entirely
   }, []);
 
   const fetchData = async (fn) => {
@@ -1000,7 +1009,8 @@ export default function App() {
 
       {/* Top bar */}
       <div className="no-print" style={{maxWidth:860,margin:"0 auto 14px"}}>
-        {/* Tab selector */}
+        {/* Tab selector — hidden when mode is locked via URL */}
+        {!urlMode && (
         <div style={{display:"flex",gap:8,marginBottom:10,background:"white",
           padding:8,borderRadius:12,boxShadow:"0 2px 8px rgba(0,0,0,0.08)"}}>
           {[["clinical","🏥 Clinical Report (English)"],["family","👨‍👩‍👧 Family Report"]].map(([key,label]) => (
@@ -1013,6 +1023,23 @@ export default function App() {
             </button>
           ))}
         </div>
+        )}
+
+        {/* Language selector — shown prominently for family mode */}
+        {(tab==="family" || urlMode==="family") && (
+          <div style={{display:"flex",gap:6,marginBottom:10,justifyContent:"center"}}>
+            {[["en","English"],["hi","हिंदी"],["mr","मराठी"]].map(([code,label]) => (
+              <button key={code} onClick={()=>setFamLang(code)}
+                style={{flex:1,padding:"10px",borderRadius:10,border:"2px solid",
+                  fontSize:13,fontWeight:700,cursor:"pointer",transition:"all 0.2s",
+                  background:famLang===code?"#0d9488":"white",
+                  color:famLang===code?"white":"#0d9488",
+                  borderColor:"#0d9488"}}>
+                {label}
+              </button>
+            ))}
+          </div>
+        )}
 
         {/* Action buttons */}
         <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
@@ -1021,11 +1048,13 @@ export default function App() {
               color:"white",border:"none",fontSize:12,fontWeight:700,cursor:"pointer"}}>
             🖨 Print / Save PDF
           </button>
+          {!urlMode && (
           <button onClick={()=>setScreen("entry")}
             style={{flex:1,minWidth:140,padding:"10px",borderRadius:9,background:"white",
               color:"#0d5c6e",border:"1.5px solid #0d5c6e",fontSize:12,fontWeight:600,cursor:"pointer"}}>
             ← New Report
           </button>
+          )}
           {available.length < 3 && (
             <div style={{flex:2,padding:"10px 14px",borderRadius:9,background:"#fffbeb",
               border:"1px solid #fcd34d",fontSize:11,color:"#92400e"}}>
